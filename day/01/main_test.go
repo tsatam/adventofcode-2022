@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestReadInput(t *testing.T) {
+func TestHighestSum(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
@@ -22,7 +22,8 @@ func TestReadInput(t *testing.T) {
 
 300
 
-200`,
+200
+`,
 			want: 300,
 		},
 		{
@@ -47,6 +48,8 @@ func TestReadInput(t *testing.T) {
 7000
 8000
 9000
+
+10000
 `,
 			want: 24000,
 		},
@@ -56,7 +59,57 @@ func TestReadInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			input := tt.input
 			want := tt.want
-			got := readInput(input)
+			got := highestSum(input)
+
+			if got != want {
+				t.Errorf("got [%d], want [%d]", got, want)
+			}
+		})
+	}
+}
+
+func TestThreeHighestSums(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  int
+	}{
+		{
+			name: "3 elves with 1 food, sums",
+			input: `100
+
+300
+
+200
+`,
+			want: 600,
+		},
+		{
+			name: "example",
+			input: `1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000
+`,
+			want: 45000,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := tt.input
+			want := tt.want
+			got := threeHighestSums(input)
 
 			if got != want {
 				t.Errorf("got [%d], want [%d]", got, want)
