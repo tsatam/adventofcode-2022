@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func TestProcessLine(t *testing.T) {
+func TestProcessRucksack(t *testing.T) {
 	tests := []struct {
 		name string
 		line string
@@ -22,7 +22,7 @@ func TestProcessLine(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.line, func(t *testing.T) {
 			want := tt.want
-			got := processLine(tt.line)
+			got := processRucksack(tt.line)
 
 			if got != want {
 				t.Errorf("got [%d], want [%d]", got, want)
@@ -31,7 +31,7 @@ func TestProcessLine(t *testing.T) {
 	}
 }
 
-func TestProcessInput(t *testing.T) {
+func TestProcessIndividually(t *testing.T) {
 	input := `vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
@@ -39,7 +39,22 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw`
 	want := 157
-	got := processInput(input)
+	got := processIndividually(input)
+
+	if got != want {
+		t.Errorf("got [%d], want [%d]", got, want)
+	}
+}
+
+func TestProcessInGroups(t *testing.T) {
+	input := `vJrwpWtwJgWrhcsFMMfFFhFp
+jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+PmmdzqPrVvPwwTWBwg
+wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+ttgJtRGJQctTZtZT
+CrZsJsPPZsGzwwsLwLmpwMDw`
+	want := 70
+	got := processInGroups(input)
 
 	if got != want {
 		t.Errorf("got [%d], want [%d]", got, want)
