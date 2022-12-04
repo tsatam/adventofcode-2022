@@ -14,17 +14,17 @@ var (
 )
 
 func main() {
-	fmt.Printf("pt1: %v\n", countFullContains(input))
-	fmt.Printf("pt2: %v\n", countOverlaps(input))
+	trimmed := strings.Trim(input, "\n")
+
+	fmt.Printf("pt1: %v\n", countFullContains(trimmed))
+	fmt.Printf("pt2: %v\n", countOverlaps(trimmed))
 }
 
 func countFullContains(input string) int {
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
-		if line != "" {
-			if hasFullContain(line) {
-				sum++
-			}
+		if hasFullContain(line) {
+			sum++
 		}
 	}
 	return sum
@@ -33,10 +33,8 @@ func countFullContains(input string) int {
 func countOverlaps(input string) int {
 	sum := 0
 	for _, line := range strings.Split(input, "\n") {
-		if line != "" {
-			if hasOverlap(line) {
-				sum++
-			}
+		if hasOverlap(line) {
+			sum++
 		}
 	}
 	return sum
