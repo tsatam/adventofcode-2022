@@ -66,21 +66,16 @@ func parseInstructions(raw string) []Instruction {
 }
 
 func parseInstruction(raw string) Instruction {
-	match := instructionMatcher.FindStringSubmatch(raw)
-	values := make([]int, 3)
+	var amount, from, to int
 
-	for i := 1; i < 4; i++ {
-		parsed, err := strconv.Atoi(match[i])
-		if err != nil {
-			log.Fatal(err)
-		}
-		values[i-1] = parsed
+	if _, err := fmt.Sscanf(raw, "move %d from %d to %d", &amount, &from, &to); err != nil {
+		log.Fatal(err)
 	}
 
 	return Instruction{
-		amount: values[0],
-		from:   values[1],
-		to:     values[2],
+		amount: amount,
+		from:   from,
+		to:     to,
 	}
 }
 
