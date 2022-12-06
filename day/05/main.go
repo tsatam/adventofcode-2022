@@ -4,15 +4,13 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 )
 
 var (
 	//go:embed input
-	input              string
-	instructionMatcher = regexp.MustCompile(`move (?P<amount>\d+) from (?P<from>\d) to (?P<to>\d)`)
+	input string
 )
 
 func main() {
