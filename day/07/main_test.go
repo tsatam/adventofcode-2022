@@ -169,3 +169,45 @@ func TestSumOfAllDirectoriesLE100000(t *testing.T) {
 		}
 	}
 }
+
+func TestFindSmallestDirGE(t *testing.T) {
+	tests := []struct {
+		name  string
+		input Dir
+		want  int
+	}{
+		{
+			name: "example",
+			input: Dir{"/", []Path{
+				Dir{"a", []Path{
+					Dir{"e", []Path{File{"i", 584}}},
+					File{"f", 29116},
+					File{"g", 2557},
+					File{"h.lst", 62596},
+				}},
+				File{"b.txt", 14848514},
+				File{"c.dat", 8504156},
+				Dir{"d", []Path{
+					File{"j", 4060174},
+					File{"d.log", 8033020},
+					File{"d.ext", 5626152},
+					File{"k", 7214296},
+				}},
+			}},
+			want: 24933642,
+		},
+	}
+
+	for _, tt := range tests {
+		input := tt.input
+		want := tt.want
+
+		bound := 30000000 - (70000000 - input.Size())
+
+		got := input.FindSmallestDirGE(bound)
+
+		if got != want {
+			t.Errorf("got [%d], want [%d]", got, want)
+		}
+	}
+}

@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"log"
+	"math"
 	"strings"
 )
 
@@ -14,8 +15,10 @@ var (
 
 func main() {
 	root := parseInput(input)
+	bound := 30000000 - (70000000 - root.Size())
 
 	fmt.Printf("pt1: %d\n", root.SumOfAllDirectoriesLE100000())
+	fmt.Printf("pt2: %d\n", root.FindSmallestDirGE(bound))
 }
 
 func parseInput(input string) Dir {
@@ -147,4 +150,22 @@ func (d Dir) SumOfAllDirectoriesLE100000() int {
 		sum += d.Size()
 	}
 	return sum
+}
+
+func (d Dir) FindSmallestDirGE(bound int) int {
+	smallestSize := math.MaxInt
+	if d.Size() >= bound {
+		smallestSize = d.Size()
+	}
+	for _, p := range d.paths {
+		if sp, ok := p.(Dir); ok {
+			size := sp.FindSmallestDirGE(bound)
+
+			if size >= bound && size < smallestSize {
+				smallestSize = size
+			}
+		}
+	}
+
+	return smallestSize
 }
