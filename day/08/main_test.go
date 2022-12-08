@@ -128,3 +128,82 @@ func TestSumOfVisibleTrees(t *testing.T) {
 		})
 	}
 }
+
+func TestFindScenicScores(t *testing.T) {
+	tests := []struct {
+		name  string
+		input [][]int
+		want  [][]int
+	}{
+		{
+			name:  "single tree",
+			input: [][]int{{5}},
+			want:  [][]int{{0}},
+		},
+		{
+			name: "example",
+			input: [][]int{
+				{3, 0, 3, 7, 3},
+				{2, 5, 5, 1, 2},
+				{6, 5, 3, 3, 2},
+				{3, 3, 5, 4, 9},
+				{3, 5, 3, 9, 0},
+			},
+			want: [][]int{
+				{0, 0, 0, 0, 0},
+				{0, 1, 4, 1, 0},
+				{0, 6, 1, 2, 0},
+				{0, 1, 8, 3, 0},
+				{0, 0, 0, 0, 0},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := tt.input
+			want := tt.want
+			got := findScenicScores(input)
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("got [%v], want [%v]", got, want)
+			}
+		})
+	}
+}
+func TestHighestScenicScores(t *testing.T) {
+	tests := []struct {
+		name  string
+		input [][]int
+		want  int
+	}{
+		{
+			name:  "single tree",
+			input: [][]int{{0}},
+			want:  0,
+		},
+		{
+			name: "example",
+			input: [][]int{
+				{0, 0, 0, 0, 0},
+				{0, 1, 4, 1, 0},
+				{0, 6, 1, 2, 0},
+				{0, 1, 8, 3, 0},
+				{0, 0, 0, 0, 0},
+			},
+			want: 8,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := tt.input
+			want := tt.want
+			got := highestScenicScore(input)
+
+			if got != want {
+				t.Errorf("got [%d], want [%d]", got, want)
+			}
+		})
+	}
+}
