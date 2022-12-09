@@ -1,6 +1,7 @@
 go 1.19
 
 use (
+	./common
 	./day/01
 	./day/02
 	./day/03
@@ -9,4 +10,5 @@ use (
 	./day/06
 	./day/07
 	./day/08
+	./day/09
 )
