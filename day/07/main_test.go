@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-func TestParseInput(t *testing.T) {
+func TestGetDirSizes(t *testing.T) {
 	tests := []struct {
 		name  string
 		input string
-		want  Path
+		want  map[string]int
 	}{
 		{
 			name: "root with single file",
@@ -17,10 +17,7 @@ func TestParseInput(t *testing.T) {
 $ ls
 10 a.txt
 `,
-			want: Dir{
-				name:  "/",
-				paths: []Path{File{"a.txt", 10}},
-			},
+			want: map[string]int{"/": 10},
 		},
 		{
 			name: "example",
@@ -48,30 +45,20 @@ $ ls
 5626152 d.ext
 7214296 k
 `,
-			want: Dir{"/", []Path{
-				Dir{"a", []Path{
-					Dir{"e", []Path{File{"i", 584}}},
-					File{"f", 29116},
-					File{"g", 2557},
-					File{"h.lst", 62596},
-				}},
-				File{"b.txt", 14848514},
-				File{"c.dat", 8504156},
-				Dir{"d", []Path{
-					File{"j", 4060174},
-					File{"d.log", 8033020},
-					File{"d.ext", 5626152},
-					File{"k", 7214296},
-				}},
-			}},
+			want: map[string]int{
+				"/":     48381165,
+				"/a/":   94853,
+				"/a/e/": 584,
+				"/d/":   24933642,
+			},
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(t.Name(), func(t *testing.T) {
 			input := tt.input
 			want := tt.want
-			got := parseInput(input)
+			got := getDirSizes(input)
 
 			if !reflect.DeepEqual(got, want) {
 				t.Errorf("got [%v], want [%v]", got, want)
@@ -80,134 +67,87 @@ $ ls
 	}
 }
 
-func TestSize(t *testing.T) {
+func TestGetSumofAllDirectoriesLessThan(t *testing.T) {
 	tests := []struct {
-		name  string
-		input Path
-		want  int
+		name     string
+		dirSizes map[string]int
+		bound    int
+		want     int
 	}{
 		{
-			name:  "simple file",
-			input: File{"a", 10},
-			want:  10,
+			name:     "root with single file",
+			dirSizes: map[string]int{"/": 10},
+			bound:    100,
+			want:     10,
 		},
 		{
-			name:  "simple dir",
-			input: Dir{"/", []Path{File{"a", 10}}},
-			want:  10,
-		},
-		{
-			name:  "multiple files in dir",
-			input: Dir{"/", []Path{File{"a", 0}, File{"b", 20}}},
-			want:  30,
-		},
-		{
-			name:  "nested dir",
-			input: Dir{"/", []Path{Dir{"x", []Path{File{"a", 10}, File{"b", 20}}}, File{"c", 30}}},
-			want:  60,
+			name: "example",
+			dirSizes: map[string]int{
+				"/":     48381165,
+				"/a/":   94853,
+				"/a/e/": 584,
+				"/d/":   24933642,
+			},
+			bound: 100000,
+			want:  95437,
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			input := tt.input
-			want := tt.want
-			got := input.Size()
+		t.Run(t.Name(), func(t *testing.T) {
+			got := getSumOfAllDirectoriesLessThan(tt.dirSizes, tt.bound)
 
-			if got != want {
-				t.Errorf("got [%d], want [%d]", got, want)
+			if got != tt.want {
+				t.Errorf("got [%d], want [%d]", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSumOfAllDirectoriesLE100000(t *testing.T) {
+func TestGetSizeOfSmallestDirToDelete(t *testing.T) {
 	tests := []struct {
-		name  string
-		input Dir
-		want  int
+		name     string
+		dirSizes map[string]int
+		total    int
+		needFree int
+		want     int
 	}{
 		{
-			name:  "simple dir",
-			input: Dir{"/", []Path{File{"a", 10}}},
-			want:  10,
-		},
-		{
-			name:  "nested dir",
-			input: Dir{"/", []Path{Dir{"x", []Path{File{"a", 10}, File{"b", 20}}}, File{"c", 30}}},
-			want:  90,
+			name:     "root with single file",
+			dirSizes: map[string]int{"/": 10},
+			total:    10,
+			needFree: 10,
+			want:     10,
 		},
 		{
 			name: "example",
-			input: Dir{"/", []Path{
-				Dir{"a", []Path{
-					Dir{"e", []Path{File{"i", 584}}},
-					File{"f", 29116},
-					File{"g", 2557},
-					File{"h.lst", 62596},
-				}},
-				File{"b.txt", 14848514},
-				File{"c.dat", 8504156},
-				Dir{"d", []Path{
-					File{"j", 4060174},
-					File{"d.log", 8033020},
-					File{"d.ext", 5626152},
-					File{"k", 7214296},
-				}},
-			}},
-			want: 95437,
+			dirSizes: map[string]int{
+				"/":     48381165,
+				"/a/":   94853,
+				"/a/e/": 584,
+				"/d/":   24933642,
+			},
+			total:    70000000,
+			needFree: 30000000,
+			want:     24933642,
 		},
 	}
 
 	for _, tt := range tests {
-		input := tt.input
-		want := tt.want
-		got := input.SumOfAllDirectoriesLE100000()
+		t.Run(t.Name(), func(t *testing.T) {
+			got := getSizeOfSmallestDirToDelete(tt.dirSizes, tt.total, tt.needFree)
 
-		if got != want {
-			t.Errorf("got [%d], want [%d]", got, want)
-		}
+			if got != tt.want {
+				t.Errorf("got [%d], want [%d]", got, tt.want)
+			}
+		})
 	}
 }
 
-func TestFindSmallestDirGE(t *testing.T) {
-	tests := []struct {
-		name  string
-		input Dir
-		want  int
-	}{
-		{
-			name: "example",
-			input: Dir{"/", []Path{
-				Dir{"a", []Path{
-					Dir{"e", []Path{File{"i", 584}}},
-					File{"f", 29116},
-					File{"g", 2557},
-					File{"h.lst", 62596},
-				}},
-				File{"b.txt", 14848514},
-				File{"c.dat", 8504156},
-				Dir{"d", []Path{
-					File{"j", 4060174},
-					File{"d.log", 8033020},
-					File{"d.ext", 5626152},
-					File{"k", 7214296},
-				}},
-			}},
-			want: 24933642,
-		},
-	}
-
-	for _, tt := range tests {
-		input := tt.input
-		want := tt.want
-
-		bound := 30000000 - (70000000 - input.Size())
-
-		got := input.FindSmallestDirGE(bound)
-
-		if got != want {
-			t.Errorf("got [%d], want [%d]", got, want)
-		}
+// old impl: 528879 ns/op	  152719 B/op	    5699 allocs/op
+// new impl: 138912 ns/op	   90640 B/op	    2067 allocs/op
+func BenchmarkMain(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		main()
 	}
 }
