@@ -2,21 +2,9 @@ package main
 
 import (
 	"bytes"
-	"common/cartesian"
 	"log"
 	"reflect"
 )
-
-const (
-	charWidth = 5
-)
-
-func iterToScreenPosition(i int) cartesian.Point {
-	x := i % 40
-	y := i / 40
-
-	return cartesian.Point{X: x, Y: y}
-}
 
 type Screen = [6][40]uint8
 type ScreenChar = [6][5]uint8
@@ -169,25 +157,20 @@ var screenChars = map[rune]ScreenChar{
 }
 
 func charAt(screen Screen, pos int) rune {
-	screenChar := getScreenChar(screen, pos)
-
-	for char, screenCharToMatch := range screenChars {
-		if reflect.DeepEqual(screenChar, screenCharToMatch) {
-			return char
-		}
-	}
-	log.Fatal("Could not find char for screenChar [%v]", screenChar)
-	return '_'
-}
-
-func getScreenChar(screen Screen, pos int) ScreenChar {
 	var screenChar ScreenChar
 	for y := 0; y < 6; y++ {
 		for x := 0; x < 5; x++ {
 			screenChar[y][x] = screen[y][pos*5+x]
 		}
 	}
-	return screenChar
+
+	for char, screenCharToMatch := range screenChars {
+		if reflect.DeepEqual(screenChar, screenCharToMatch) {
+			return char
+		}
+	}
+	log.Fatalf("Could not find char for screenChar [%v]", screenChar)
+	return '_'
 }
 
 func print(s Screen) string {
@@ -197,26 +180,6 @@ func print(s Screen) string {
 		buffer.WriteRune(charAt(s, i))
 	}
 
-	result := buffer.String()
-	return result
-}
-
-func debug(s Screen) string {
-	var buffer bytes.Buffer
-
-	lit := '#'
-	dark := '.'
-
-	for y := 0; y < len(s); y++ {
-		for x := 0; x < len(s[y]); x++ {
-			if s[y][x] == 1 {
-				buffer.WriteRune(lit)
-			} else {
-				buffer.WriteRune(dark)
-			}
-		}
-		buffer.WriteRune('\n')
-	}
 	result := buffer.String()
 	return result
 }

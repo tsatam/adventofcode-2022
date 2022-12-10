@@ -1,18 +1,16 @@
 package main
 
 import (
-	set "common/set"
+	cartesian "common/cartesian"
 	_ "embed"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
 
 var (
 	//go:embed input
-	input         string
-	checkedCycles = set.NewSet(20, 60, 100, 140, 180, 220)
+	input string
 )
 
 func main() {
@@ -24,36 +22,28 @@ func main() {
 func simulate(input string) (int, Screen) {
 	x := 1
 
+	sum := 0
 	var screen Screen
 
-	xAtCycle := map[int]int{}
-
-	splitAddCommand := strings.ReplaceAll(strings.TrimSpace(input), " ", "\n")
-	instructions := strings.Split(splitAddCommand, "\n")
-
-	for i, instruction := range instructions {
-		cycle := i + 1
-		screenPosition := iterToScreenPosition(i)
-
-		if checkedCycles.Contains(cycle) {
-			xAtCycle[cycle] = x
+	for i, instruction := range getInstructions(input) {
+		if i == 19 || i == 59 || i == 99 || i == 139 || i == 179 || i == 219 {
+			sum += x * (i + 1)
 		}
+		screenPosition := cartesian.Point{X: i % 40, Y: i / 40}
 		if x == screenPosition.X || x == screenPosition.X-1 || x == screenPosition.X+1 {
 			screen[screenPosition.Y][screenPosition.X] = 1
 		}
 
 		if instruction != "noop" && instruction != "addx" {
-			add, err := strconv.Atoi(instruction)
-			if err != nil {
-				log.Fatal(err)
-			}
+			add, _ := strconv.Atoi(instruction)
 			x += add
 		}
 	}
 
-	sum := 0
-	for c, xAtC := range xAtCycle {
-		sum += c * xAtC
-	}
 	return sum, screen
+}
+
+func getInstructions(input string) []string {
+	splitAddCommand := strings.ReplaceAll(strings.TrimSpace(input), " ", "\n")
+	return strings.Split(splitAddCommand, "\n")
 }
