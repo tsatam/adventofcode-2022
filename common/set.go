@@ -25,3 +25,8 @@ func (s *Set[T]) AddAll(items ...T) {
 func (s *Set[T]) Size() int {
 	return len(s.m)
 }
+
+func (s *Set[T]) Contains(item T) bool {
+	_, ok := s.m[item]
+	return ok
+}
