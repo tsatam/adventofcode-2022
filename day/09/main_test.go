@@ -1,6 +1,7 @@
 package main
 
 import (
+	cartesian "common/cartesian"
 	"fmt"
 	"reflect"
 	"testing"
@@ -17,14 +18,14 @@ L 5
 R 2
 `
 	want := []Motion{
-		{Right, 4},
-		{Up, 4},
-		{Left, 3},
-		{Down, 1},
-		{Right, 4},
-		{Down, 1},
-		{Left, 5},
-		{Right, 2},
+		{cartesian.Right, 4},
+		{cartesian.Up, 4},
+		{cartesian.Left, 3},
+		{cartesian.Down, 1},
+		{cartesian.Right, 4},
+		{cartesian.Down, 1},
+		{cartesian.Left, 5},
+		{cartesian.Right, 2},
 	}
 
 	got := parseInput(input)
@@ -36,36 +37,36 @@ R 2
 
 func TestReconcileTail(t *testing.T) {
 	tests := []struct {
-		head Point
-		tail Point
-		want Point
+		head cartesian.Point
+		tail cartesian.Point
+		want cartesian.Point
 	}{
-		{Point{0, 0}, Point{0, 0}, Point{0, 0}},
+		{cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
 
-		{Point{-1, 0}, Point{0, 0}, Point{0, 0}},
-		{Point{-1, -1}, Point{0, 0}, Point{0, 0}},
-		{Point{0, -1}, Point{0, 0}, Point{0, 0}},
-		{Point{1, -1}, Point{0, 0}, Point{0, 0}},
-		{Point{1, 0}, Point{0, 0}, Point{0, 0}},
-		{Point{1, 1}, Point{0, 0}, Point{0, 0}},
-		{Point{0, 1}, Point{0, 0}, Point{0, 0}},
-		{Point{-1, 1}, Point{0, 0}, Point{0, 0}},
+		{cartesian.Point{X: -1, Y: 0}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: -1, Y: -1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: 0, Y: -1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: 1, Y: -1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: 1, Y: 0}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: 1, Y: 1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: 0, Y: 1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
+		{cartesian.Point{X: -1, Y: 1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 0}},
 
-		{Point{-2, 0}, Point{0, 0}, Point{-1, 0}},
-		{Point{-2, -1}, Point{0, 0}, Point{-1, -1}},
-		{Point{-2, 1}, Point{0, 0}, Point{-1, 1}},
+		{cartesian.Point{X: -2, Y: 0}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: -1, Y: 0}},
+		{cartesian.Point{X: -2, Y: -1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: -1, Y: -1}},
+		{cartesian.Point{X: -2, Y: 1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: -1, Y: 1}},
 
-		{Point{0, -2}, Point{0, 0}, Point{0, -1}},
-		{Point{-1, -2}, Point{0, 0}, Point{-1, -1}},
-		{Point{1, -2}, Point{0, 0}, Point{1, -1}},
+		{cartesian.Point{X: 0, Y: -2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: -1}},
+		{cartesian.Point{X: -1, Y: -2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: -1, Y: -1}},
+		{cartesian.Point{X: 1, Y: -2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 1, Y: -1}},
 
-		{Point{2, 0}, Point{0, 0}, Point{1, 0}},
-		{Point{2, -1}, Point{0, 0}, Point{1, -1}},
-		{Point{2, 1}, Point{0, 0}, Point{1, 1}},
+		{cartesian.Point{X: 2, Y: 0}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 1, Y: 0}},
+		{cartesian.Point{X: 2, Y: -1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 1, Y: -1}},
+		{cartesian.Point{X: 2, Y: 1}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 1, Y: 1}},
 
-		{Point{0, 2}, Point{0, 0}, Point{0, 1}},
-		{Point{-1, 2}, Point{0, 0}, Point{-1, 1}},
-		{Point{1, 2}, Point{0, 0}, Point{1, 1}},
+		{cartesian.Point{X: 0, Y: 2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 0, Y: 1}},
+		{cartesian.Point{X: -1, Y: 2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: -1, Y: 1}},
+		{cartesian.Point{X: 1, Y: 2}, cartesian.Point{X: 0, Y: 0}, cartesian.Point{X: 1, Y: 1}},
 	}
 
 	for _, tt := range tests {
@@ -81,14 +82,14 @@ func TestReconcileTail(t *testing.T) {
 
 func TestPositionsVisited(t *testing.T) {
 	motions := []Motion{
-		{Right, 4},
-		{Up, 4},
-		{Left, 3},
-		{Down, 1},
-		{Right, 4},
-		{Down, 1},
-		{Left, 5},
-		{Right, 2},
+		{cartesian.Right, 4},
+		{cartesian.Up, 4},
+		{cartesian.Left, 3},
+		{cartesian.Down, 1},
+		{cartesian.Right, 4},
+		{cartesian.Down, 1},
+		{cartesian.Left, 5},
+		{cartesian.Right, 2},
 	}
 	want := 13
 	got := positionsVisited(motions, 2)
@@ -99,14 +100,14 @@ func TestPositionsVisited(t *testing.T) {
 
 func TestPositionsVisitedPt2(t *testing.T) {
 	motions := []Motion{
-		{Right, 4},
-		{Up, 4},
-		{Left, 3},
-		{Down, 1},
-		{Right, 4},
-		{Down, 1},
-		{Left, 5},
-		{Right, 2},
+		{cartesian.Right, 4},
+		{cartesian.Up, 4},
+		{cartesian.Left, 3},
+		{cartesian.Down, 1},
+		{cartesian.Right, 4},
+		{cartesian.Down, 1},
+		{cartesian.Left, 5},
+		{cartesian.Right, 2},
 	}
 	want := 1
 	got := positionsVisited(motions, 10)

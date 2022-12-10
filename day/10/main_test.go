@@ -154,10 +154,22 @@ noop
 noop
 `
 
-	want := 13140
-	got := simulate(input)
+	wantSum := 13140
+	wantScreen := `##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....
+`
 
-	if got != want {
-		t.Errorf("got [%d], want [%d]", got, want)
+	gotSum, gotScreen := simulate(input)
+
+	if gotSum != wantSum {
+		t.Errorf("got sum [%d], want sum [%d]", gotSum, wantSum)
+	}
+
+	if debug(gotScreen) != wantScreen {
+		t.Errorf("got screen [%s], want screen [%s]", debug(gotScreen), wantScreen)
 	}
 }

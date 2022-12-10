@@ -1,7 +1,7 @@
 package main
 
 import (
-	set "common"
+	set "common/set"
 	_ "embed"
 	"fmt"
 	"log"
@@ -16,11 +16,15 @@ var (
 )
 
 func main() {
-	fmt.Printf("pt1: [%d]\n", simulate(input))
+	sum, screen := simulate(input)
+	fmt.Printf("pt1: [%d]\n", sum)
+	fmt.Printf("pt2: [%s]\n", print(screen))
 }
 
-func simulate(input string) int {
+func simulate(input string) (int, Screen) {
 	x := 1
+
+	var screen Screen
 
 	xAtCycle := map[int]int{}
 
@@ -29,8 +33,13 @@ func simulate(input string) int {
 
 	for i, instruction := range instructions {
 		cycle := i + 1
+		screenPosition := iterToScreenPosition(i)
+
 		if checkedCycles.Contains(cycle) {
 			xAtCycle[cycle] = x
+		}
+		if x == screenPosition.X || x == screenPosition.X-1 || x == screenPosition.X+1 {
+			screen[screenPosition.Y][screenPosition.X] = 1
 		}
 
 		if instruction != "noop" && instruction != "addx" {
@@ -46,5 +55,5 @@ func simulate(input string) int {
 	for c, xAtC := range xAtCycle {
 		sum += c * xAtC
 	}
-	return sum
+	return sum, screen
 }
