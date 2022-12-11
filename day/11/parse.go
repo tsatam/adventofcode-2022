@@ -37,11 +37,8 @@ func parseStartingItems(line string) []int {
 	items := make([]int, len(rawItems))
 
 	for i, rawItem := range rawItems {
-		if item, err := strconv.Atoi(rawItem); err == nil {
-			items[i] = item
-		} else {
-			log.Fatal(err)
-		}
+		item, _ := strconv.Atoi(rawItem)
+		items[i] = int(item)
 	}
 
 	return items
@@ -56,10 +53,10 @@ func parseOperation(line string) Operation {
 
 	value := parseSingleIntAtPosition(rawOperation, 6)
 	if rawOperation[4] == '+' {
-		return AddOperation{value}
+		return AddOperation{int(value)}
 	}
 	if rawOperation[4] == '*' {
-		return MulOperation{value}
+		return MulOperation{int(value)}
 	}
 
 	log.Fatalf("Could not parse operation: [%s]", line)
@@ -79,10 +76,6 @@ func parseThrowFalse(line string) int {
 }
 
 func parseSingleIntAtPosition(line string, position int) int {
-	if value, err := strconv.Atoi(line[position:]); err == nil {
-		return value
-	} else {
-		log.Fatalf("Error parsing line [%s], position [%d], err [%v]\n", line, position, err)
-		return -1
-	}
+	value, _ := strconv.Atoi(line[position:])
+	return int(value)
 }

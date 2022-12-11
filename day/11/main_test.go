@@ -112,112 +112,46 @@ func TestProcessRounds(t *testing.T) {
 
 	tests := []struct {
 		rounds int
-		want   []Monkey
+		want   []int
+		worry  bool
 	}{
 		{
 			rounds: 1,
-			want: []Monkey{
-				{
-					items:     []int{20, 23, 27, 26},
-					operation: MulOperation{19},
-					testDiv:   23, throwTrue: 2, throwFalse: 3,
-
-					inspected: 2,
-				},
-				{
-					items:     []int{2080, 25, 167, 207, 401, 1046},
-					operation: AddOperation{6},
-					testDiv:   19, throwTrue: 2, throwFalse: 0,
-
-					inspected: 4,
-				},
-				{
-					items:     []int{},
-					operation: PowOperation{},
-					testDiv:   13, throwTrue: 1, throwFalse: 3,
-
-					inspected: 3,
-				},
-				{
-					items:     []int{},
-					operation: AddOperation{3},
-					testDiv:   17, throwTrue: 0, throwFalse: 1,
-
-					inspected: 5,
-				},
-			},
+			want:   []int{2, 4, 3, 5},
 		},
 		{
 			rounds: 2,
-			want: []Monkey{
-				{
-					items:     []int{695, 10, 71, 135, 350},
-					operation: MulOperation{19},
-					testDiv:   23, throwTrue: 2, throwFalse: 3,
-
-					inspected: 6,
-				},
-				{
-					items:     []int{43, 49, 58, 55, 362},
-					operation: AddOperation{6},
-					testDiv:   19, throwTrue: 2, throwFalse: 0,
-
-					inspected: 10,
-				},
-				{
-					items:     []int{},
-					operation: PowOperation{},
-					testDiv:   13, throwTrue: 1, throwFalse: 3,
-
-					inspected: 4,
-				},
-				{
-					items:     []int{},
-					operation: AddOperation{3},
-					testDiv:   17, throwTrue: 0, throwFalse: 1,
-
-					inspected: 10,
-				},
-			},
+			want:   []int{6, 10, 4, 10},
 		},
 		{
 			rounds: 20,
-			want: []Monkey{
-				{
-					items:     []int{10, 12, 14, 26, 34},
-					operation: MulOperation{19},
-					testDiv:   23, throwTrue: 2, throwFalse: 3,
-
-					inspected: 101,
-				},
-				{
-					items:     []int{245, 93, 53, 199, 115},
-					operation: AddOperation{6},
-					testDiv:   19, throwTrue: 2, throwFalse: 0,
-
-					inspected: 95,
-				},
-				{
-					items:     []int{},
-					operation: PowOperation{},
-					testDiv:   13, throwTrue: 1, throwFalse: 3,
-
-					inspected: 7,
-				},
-				{
-					items:     []int{},
-					operation: AddOperation{3},
-					testDiv:   17, throwTrue: 0, throwFalse: 1,
-
-					inspected: 105,
-				},
-			},
+			want:   []int{101, 95, 7, 105},
+		},
+		{
+			rounds: 1,
+			worry:  true,
+			want:   []int{2, 4, 3, 6},
+		},
+		{
+			rounds: 20,
+			worry:  true,
+			want:   []int{99, 97, 8, 103},
+		},
+		{
+			rounds: 1000,
+			worry:  true,
+			want:   []int{5204, 4792, 199, 5192},
+		},
+		{
+			rounds: 10000,
+			worry:  true,
+			want:   []int{52166, 47830, 1938, 52013},
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("Rounds: [%d]", tt.rounds), func(t *testing.T) {
-			got := processRounds(input(), tt.rounds)
+		t.Run(fmt.Sprintf("Rounds: [%d], Worry [%v]", tt.rounds, tt.worry), func(t *testing.T) {
+			got := processRounds(input(), tt.rounds, tt.worry)
 
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("got [\n%+v\n], want [\n%+v\n]", got, tt.want)
@@ -227,38 +161,9 @@ func TestProcessRounds(t *testing.T) {
 }
 
 func TestFindMonkeyBusiness(t *testing.T) {
-	input := []Monkey{
-		{
-			items:     []int{10, 12, 14, 26, 34},
-			operation: MulOperation{19},
-			testDiv:   23, throwTrue: 2, throwFalse: 3,
+	input := []int{101, 95, 7, 105}
 
-			inspected: 101,
-		},
-		{
-			items:     []int{245, 93, 53, 199, 115},
-			operation: AddOperation{6},
-			testDiv:   19, throwTrue: 2, throwFalse: 0,
-
-			inspected: 95,
-		},
-		{
-			items:     []int{},
-			operation: PowOperation{},
-			testDiv:   13, throwTrue: 1, throwFalse: 3,
-
-			inspected: 7,
-		},
-		{
-			items:     []int{},
-			operation: AddOperation{3},
-			testDiv:   17, throwTrue: 0, throwFalse: 1,
-
-			inspected: 105,
-		},
-	}
-
-	want := 10605
+	want := int(10605)
 	got := findMonkeyBusiness(input)
 
 	if got != want {

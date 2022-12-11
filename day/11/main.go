@@ -12,20 +12,30 @@ var (
 )
 
 func main() {
+	pt1()
+	pt2()
+}
+
+func pt1() {
 	monkeys := parseInput(input)
-	monkeys = processRounds(monkeys, 20)
-	monkeyBusiness := findMonkeyBusiness(monkeys)
+
+	inspected := processRounds(monkeys, 20, false)
+	monkeyBusiness := findMonkeyBusiness(inspected)
 
 	fmt.Printf("pt1: [%d]\n", monkeyBusiness)
 }
+func pt2() {
+	monkeys := parseInput(input)
 
-func findMonkeyBusiness(monkeys []Monkey) int {
-	inspected := make([]int, len(monkeys))
-	for i, monkey := range monkeys {
-		inspected[i] = monkey.inspected
-	}
+	inspected := processRounds(monkeys, 10000, true)
+	monkeyBusiness := findMonkeyBusiness(inspected)
 
+	fmt.Printf("pt2: [%d]\n", monkeyBusiness)
+}
+
+func findMonkeyBusiness(inspected []int) int {
 	sort.Ints(inspected)
 
-	return inspected[len(inspected)-1] * inspected[len(inspected)-2]
+	last := len(inspected) - 1
+	return inspected[last] * inspected[last-1]
 }
