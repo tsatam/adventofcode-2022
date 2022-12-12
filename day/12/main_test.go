@@ -41,7 +41,7 @@ func TestFindShortestPath(t *testing.T) {
 		start     c.Point
 		dest      c.Point
 		heightmap [][]int
-		want      int
+		want      uint
 	}{
 		{
 			name:      "1 row",
@@ -67,7 +67,7 @@ func TestFindShortestPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := findShortestPath(tt.start, tt.dest, tt.heightmap)
+			got, _ := findShortestPath(tt.start, tt.dest, tt.heightmap)
 
 			if got != tt.want {
 				t.Errorf("got [%d], want [%d]", got, tt.want)
@@ -82,7 +82,7 @@ func TestFindShortestPathFromAnyLowestPoint(t *testing.T) {
 		name      string
 		dest      c.Point
 		heightmap [][]int
-		want      int
+		want      uint
 	}{
 		{
 			name: "example",
@@ -100,12 +100,12 @@ func TestFindShortestPathFromAnyLowestPoint(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := findShortestPathFromAnyLowestPoint(tt.dest, tt.heightmap)
+			_, shortestPath := findShortestPath(c.Point{X: 0, Y: 0}, tt.dest, tt.heightmap)
+			got := findShortestPathFromAnyLowestPoint(tt.heightmap, shortestPath)
 
 			if got != tt.want {
 				t.Errorf("got [%d], want [%d]", got, tt.want)
 			}
-
 		})
 	}
 }

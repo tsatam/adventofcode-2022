@@ -17,8 +17,8 @@ var (
 func main() {
 	start, dest, heightmap := parseInput(input)
 
-	shortestPathFromStart := findShortestPath(start, dest, heightmap)
-	shortestPathFromAnyLowestPoint := findShortestPathFromAnyLowestPoint(dest, heightmap)
+	shortestPathFromStart, shortestPaths := findShortestPath(start, dest, heightmap)
+	shortestPathFromAnyLowestPoint := findShortestPathFromAnyLowestPoint(heightmap, shortestPaths)
 
 	fmt.Printf("pt1: [%d]\n", shortestPathFromStart)
 	fmt.Printf("pt2: [%d]\n", shortestPathFromAnyLowestPoint)
@@ -46,22 +46,22 @@ func parseInput(input string) (start c.Point, dest c.Point, heightmap [][]int) {
 	return
 }
 
-func findShortestPath(start, dest c.Point, heightmap [][]int) int {
+func findShortestPath(start, dest c.Point, heightmap [][]int) (uint, [][]uint) {
 	boundsY, boundsX := len(heightmap), len(heightmap[0])
 
 	queue := mpq.New[c.Point](0, boundsX*boundsY)
-	shortestDistances := make([][]int, boundsY)
+	shortestDistances := make([][]uint, boundsY)
 
 	for y := range heightmap {
-		shortestDistances[y] = make([]int, boundsX)
+		shortestDistances[y] = make([]uint, boundsX)
 		for x := range heightmap[y] {
 			p := c.Point{X: x, Y: y}
-			if start.X == x && start.Y == y {
+			if dest.X == x && dest.Y == y {
 				shortestDistances[y][x] = 0
 			} else {
 				shortestDistances[y][x] = math.MaxInt
 			}
-			queue.AddAtPriority(p, shortestDistances[y][x])
+			queue.AddAtPriority(p, int(shortestDistances[y][x]))
 		}
 	}
 
@@ -71,7 +71,7 @@ func findShortestPath(start, dest c.Point, heightmap [][]int) int {
 		if res.X < 0 || res.Y < 0 || res.X >= boundsX || res.Y >= boundsY {
 			return c.Point{X: -1, Y: -1}, false
 		}
-		elevationDifference := heightmap[res.Y][res.X] - heightmap[p.Y][p.X]
+		elevationDifference := heightmap[p.Y][p.X] - heightmap[res.Y][res.X]
 		if elevationDifference > 1 {
 			return c.Point{X: -1, Y: -1}, false
 		}
@@ -99,24 +99,20 @@ func findShortestPath(start, dest c.Point, heightmap [][]int) int {
 
 			if currentDistance < shortestDistances[neighbor.Y][neighbor.X] {
 				shortestDistances[neighbor.Y][neighbor.X] = currentDistance
-				queue.SetPriority(neighbor, currentDistance)
+				queue.SetPriority(neighbor, int(currentDistance))
 			}
 		}
 	}
 
-	return shortestDistances[dest.Y][dest.X]
+	return shortestDistances[start.Y][start.X], shortestDistances
 }
 
-func findShortestPathFromAnyLowestPoint(dest c.Point, heightmap [][]int) int {
-	minShortestPath := math.MaxInt - 1
+func findShortestPathFromAnyLowestPoint(heightmap [][]int, shortestPath [][]uint) uint {
+	minShortestPath := uint(math.MaxInt - 1)
 	for y := range heightmap {
 		for x := range heightmap[y] {
-			if heightmap[y][x] == 0 {
-				start := c.Point{X: x, Y: y}
-				shortestPath := findShortestPath(start, dest, heightmap)
-				if shortestPath > 0 && shortestPath < minShortestPath {
-					minShortestPath = shortestPath
-				}
+			if heightmap[y][x] == 0 && shortestPath[y][x] < minShortestPath {
+				minShortestPath = shortestPath[y][x]
 			}
 		}
 	}
