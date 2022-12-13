@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -12,9 +13,16 @@ var (
 	input string
 )
 
+const (
+	dividerPacketTwo = "[[2]]"
+	dividerPacketSix = "[[6]]"
+)
+
 func main() {
 	sum := solve(input)
+	decoderKey := findDecoderKey(input)
 	fmt.Printf("pt1: [%d]\n", sum)
+	fmt.Printf("pt2: [%d]\n", decoderKey)
 }
 
 func solve(input string) int {
@@ -33,6 +41,37 @@ func solve(input string) int {
 	}
 
 	return sum
+}
+
+func findDecoderKey(input string) int {
+	pairs := make([]string, 0)
+
+	for _, pairOrBlank := range strings.Split(input, "\n") {
+		if pairOrBlank != "" {
+			pairs = append(pairs, pairOrBlank)
+		}
+	}
+
+	pairs = append(pairs, dividerPacketTwo)
+	pairs = append(pairs, dividerPacketSix)
+
+	sort.Slice(pairs, func(i, j int) bool {
+		return compareSignals(pairs[i], pairs[j])
+	})
+
+	idxTwo := -1
+	idxSix := -1
+
+	for i, pair := range pairs {
+		if pair == dividerPacketTwo {
+			idxTwo = i + 1
+		}
+		if pair == dividerPacketSix {
+			idxSix = i + 1
+		}
+	}
+
+	return idxTwo * idxSix
 }
 
 func compareSignals(left, right string) bool {
