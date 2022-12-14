@@ -24,6 +24,12 @@ func (s *Set[T]) AddAll(items ...T) {
 	}
 }
 
+func (s *Set[T]) Merge(other Set[T]) {
+	for item := range other.m {
+		s.Add(item)
+	}
+}
+
 func (s *Set[T]) Size() int {
 	return len(s.m)
 }
@@ -48,7 +54,7 @@ func (s *Set[T]) Remove(item T) {
 func (s *Set[T]) Slice() []T {
 	keys := make([]T, len(s.m))
 	i := 0
-	for k, _ := range s.m {
+	for k := range s.m {
 		keys[i] = k
 		i++
 	}

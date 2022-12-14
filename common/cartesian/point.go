@@ -1,5 +1,7 @@
 package cartesian
 
+import "log"
+
 type Point struct{ X, Y int }
 
 func (p Point) Move(direction Direction) Point {
@@ -15,4 +17,26 @@ func (p Point) Move(direction Direction) Point {
 	default:
 		return p
 	}
+}
+
+func (p Point) IsInDirection(other Point) Direction {
+	if p.X == other.X {
+		if p.Y < other.Y {
+			return Down
+		}
+		if p.Y > other.Y {
+			return Up
+		}
+	}
+	if p.Y == other.Y {
+		if p.X < other.X {
+			return Right
+		}
+		if p.X > other.X {
+			return Left
+		}
+	}
+
+	log.Fatalf("Points [%v,%v] do not share axis", p, other)
+	return Down
 }
