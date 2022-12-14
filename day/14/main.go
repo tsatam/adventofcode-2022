@@ -11,16 +11,19 @@ import (
 
 var (
 	//go:embed input
-	input string
+	input      string
+	sandSource = c.Point{X: 500, Y: 0}
 )
 
 func main() {
 	lines := parseInput(input)
 	rocks := getPointsForLines(lines)
 
-	numSand := processSand(rocks)
+	numSand := processSand(rocks, false)
+	numSandWithFloor := processSand(rocks, true)
 
 	fmt.Printf("pt1: [%d]\n", numSand)
+	fmt.Printf("pt2: [%d]\n", numSandWithFloor)
 
 }
 
@@ -98,23 +101,31 @@ func getPointsBetweenPoints(a, b c.Point) s.Set[c.Point] {
 	return points
 }
 
-func processSand(rocks s.Set[c.Point]) int {
+func processSand(rocks s.Set[c.Point], shouldFloor bool) int {
 	rocksAndSand := s.NewSet[c.Point]()
 	rocksAndSand.Merge(rocks)
 
 	lowestY := findLowestY(rocks)
+	floor := lowestY + 2
 
 	settledSand := 0
 	oops := false
 
 	for !oops {
-		sand := c.Point{X: 500, Y: 0}
+		sand := sandSource
 		sandHasSettled := false
 
 		for !sandHasSettled {
-			if sand.Y > lowestY {
+
+			if !shouldFloor && sand.Y > lowestY {
 				oops = true
 				break
+			}
+
+			if shouldFloor && sand.Y == floor-1 {
+				sandHasSettled = true
+				rocksAndSand.Add(sand)
+				settledSand++
 			}
 
 			if newSand := sand.Move(c.Down); !rocksAndSand.Contains(newSand) {
@@ -130,6 +141,10 @@ func processSand(rocks s.Set[c.Point]) int {
 				rocksAndSand.Add(sand)
 				settledSand++
 			}
+		}
+
+		if sandHasSettled && sand == sandSource {
+			oops = true
 		}
 	}
 

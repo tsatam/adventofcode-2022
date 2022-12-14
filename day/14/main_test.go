@@ -52,7 +52,7 @@ func TestGetPointsForLines(t *testing.T) {
 	}
 }
 
-func TestProcessSand(t *testing.T) {
+func TestProcessSandNoFloor(t *testing.T) {
 	input := s.NewSet[c.Point]()
 	input.AddAll([]c.Point{
 		{X: 498, Y: 4},
@@ -70,7 +70,32 @@ func TestProcessSand(t *testing.T) {
 	}...)
 
 	want := 24
-	got := processSand(input)
+	got := processSand(input, false)
+
+	if got != want {
+		t.Errorf("got [%d], want [%d]", got, want)
+	}
+}
+
+func TestProcessSandFloor(t *testing.T) {
+	input := s.NewSet[c.Point]()
+	input.AddAll([]c.Point{
+		{X: 498, Y: 4},
+		{X: 498, Y: 5},
+		{X: 498, Y: 6},
+		{X: 497, Y: 6},
+		{X: 496, Y: 6},
+
+		{X: 503, Y: 4},
+		{X: 502, Y: 4},
+		{X: 502, Y: 5}, {X: 502, Y: 6}, {X: 502, Y: 7}, {X: 502, Y: 8},
+		{X: 502, Y: 9},
+		{X: 501, Y: 9}, {X: 500, Y: 9}, {X: 499, Y: 9}, {X: 498, Y: 9}, {X: 497, Y: 9}, {X: 496, Y: 9}, {X: 495, Y: 9},
+		{X: 494, Y: 9},
+	}...)
+
+	want := 93
+	got := processSand(input, true)
 
 	if got != want {
 		t.Errorf("got [%d], want [%d]", got, want)
