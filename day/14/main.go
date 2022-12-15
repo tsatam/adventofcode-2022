@@ -59,7 +59,7 @@ func getPointsForLines(lines []Line) s.Set[c.Point] {
 	points := s.NewSet[c.Point]()
 
 	for _, line := range lines {
-		points.Merge(getPointsForLine(line))
+		points.Union(getPointsForLine(line))
 	}
 
 	return points
@@ -68,7 +68,7 @@ func getPointsForLines(lines []Line) s.Set[c.Point] {
 func getPointsForLine(line Line) s.Set[c.Point] {
 	points := s.NewSet[c.Point]()
 	for i := 0; i < len(line)-1; i++ {
-		points.Merge(getPointsBetweenPoints(line[i], line[i+1]))
+		points.Union(getPointsBetweenPoints(line[i], line[i+1]))
 	}
 
 	return points
@@ -103,7 +103,7 @@ func getPointsBetweenPoints(a, b c.Point) s.Set[c.Point] {
 
 func processSand(rocks s.Set[c.Point], shouldFloor bool) int {
 	rocksAndSand := s.NewSet[c.Point]()
-	rocksAndSand.Merge(rocks)
+	rocksAndSand.Union(rocks)
 
 	lowestY := findLowestY(rocks)
 	floor := lowestY + 2

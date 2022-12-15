@@ -40,3 +40,15 @@ func (p Point) IsInDirection(other Point) Direction {
 	log.Fatalf("Points [%v,%v] do not share axis", p, other)
 	return Down
 }
+
+func (p Point) ManhattanDistance(other Point) int {
+	return abs(p.X-other.X) + abs(p.Y-other.Y)
+}
+
+func abs(i int) int {
+	if i < 0 {
+		return -i
+	} else {
+		return i
+	}
+}

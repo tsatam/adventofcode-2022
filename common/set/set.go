@@ -24,9 +24,15 @@ func (s *Set[T]) AddAll(items ...T) {
 	}
 }
 
-func (s *Set[T]) Merge(other Set[T]) {
+func (s *Set[T]) Union(other Set[T]) {
 	for item := range other.m {
 		s.Add(item)
+	}
+}
+
+func (s *Set[T]) Subtraction(other Set[T]) {
+	for item := range other.m {
+		s.Remove(item)
 	}
 }
 
