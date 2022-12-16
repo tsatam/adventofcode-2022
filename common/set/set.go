@@ -45,6 +45,15 @@ func (s *Set[T]) Contains(item T) bool {
 	return ok
 }
 
+func (s *Set[T]) ContainsAll(other Set[T]) bool {
+	for item := range other.m {
+		if !s.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *Set[T]) GetOne() (T, error) {
 	for k := range s.m {
 		return k, nil
