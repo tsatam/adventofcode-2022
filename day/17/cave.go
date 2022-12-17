@@ -6,6 +6,10 @@ import (
 	"common/set"
 )
 
+const (
+	MAX_CAVE_HEIGHT = 40
+)
+
 type Cave struct {
 	chamber [][7]bool
 	yoffset int
@@ -102,3 +106,44 @@ func (cave *Cave) isObstructed(p c.Point) bool {
 
 	return cave.chamber[-p.Y][p.X]
 }
+
+func (cave *Cave) getTopRow() byte {
+	result := byte(0b00000000)
+	if len(cave.chamber) == 0 {
+		return result
+	}
+
+	rowToGet := len(cave.chamber) - 1
+
+	for _, isOccupied := range cave.chamber[rowToGet] {
+		result = result << 2
+		if isOccupied {
+			result += 0b00000001
+		}
+	}
+
+	return result
+}
+
+func (cave *Cave) getTopograhy() (result [7]int) {
+	y := len(cave.chamber) - 1
+
+	for x := 0; x < 7; x++ {
+		for yOffset := 0; yOffset <= y; yOffset++ {
+			if cave.chamber[y-yOffset][x] {
+				result[x] = yOffset
+				break
+			}
+		}
+	}
+
+	return
+}
+
+/*
+	10 rocks
+
+	cycle len: 8, found at 1
+
+	height of: 1rock + 8rock * 1 + 1rock
+*/
