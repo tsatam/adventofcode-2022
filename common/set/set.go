@@ -79,3 +79,13 @@ func (s *Set[T]) Slice() []T {
 func (s *Set[T]) String() string {
 	return fmt.Sprintf("%v", s.Slice())
 }
+
+func (s *Set[T]) Copy() Set[T] {
+	new := Set[T]{make(map[T]struct{}, len(s.m))}
+
+	for k := range s.m {
+		new.m[k] = struct{}{}
+	}
+
+	return new
+}

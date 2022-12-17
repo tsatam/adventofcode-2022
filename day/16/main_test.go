@@ -60,6 +60,29 @@ func TestFindMaxPressure(t *testing.T) {
 	}
 }
 
+func TestFindMaxPressureWithElephant(t *testing.T) {
+
+	valves = map[string]Valve{
+		"AA": {name: "AA", flowRate: 0, tunnels: []string{"DD", "II", "BB"}},
+		"BB": {name: "BB", flowRate: 13, tunnels: []string{"CC", "AA"}},
+		"CC": {name: "CC", flowRate: 2, tunnels: []string{"DD", "BB"}},
+		"DD": {name: "DD", flowRate: 20, tunnels: []string{"CC", "AA", "EE"}},
+		"EE": {name: "EE", flowRate: 3, tunnels: []string{"FF", "DD"}},
+		"FF": {name: "FF", flowRate: 0, tunnels: []string{"EE", "GG"}},
+		"GG": {name: "GG", flowRate: 0, tunnels: []string{"FF", "HH"}},
+		"HH": {name: "HH", flowRate: 22, tunnels: []string{"GG"}},
+		"II": {name: "II", flowRate: 0, tunnels: []string{"AA", "JJ"}},
+		"JJ": {name: "JJ", flowRate: 21, tunnels: []string{"II"}},
+	}
+	want := 1707
+
+	got := findMaxPressureWithElephant()
+
+	if got != want {
+		t.Errorf("got [%d], want [%d]", got, want)
+	}
+}
+
 func TestFindAllShortestPaths(t *testing.T) {
 
 	valves = map[string]Valve{

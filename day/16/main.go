@@ -8,13 +8,8 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
-)
-
-const (
-	Time = 30
 )
 
 var (
@@ -26,9 +21,12 @@ var (
 
 func main() {
 	parseInput(input)
-	maxPressure := findMaxPressure()
 
+	maxPressure := findMaxPressure()
 	fmt.Printf("pt1: [%d]\n", maxPressure)
+
+	maxPressureWithElephant := findMaxPressureWithElephant()
+	fmt.Printf("pt2: [%d]\n", maxPressureWithElephant)
 }
 
 type Valve struct {
@@ -62,18 +60,52 @@ func parseInput(input string) map[string]Valve {
 func findMaxPressure() int {
 
 	startPosition := "AA"
-	startTimeRemaining := 30
-	startValveState := make(ValveState, len(valves))
+	startTimeRemaining := int(30)
 
 	shortestPaths := findAllShortestPaths(startPosition)
 
 	dests := set.NewSet[string]()
 	for dest := range shortestPaths[startPosition] {
 		dests.Add(dest)
-		startValveState[dest] = -1
 	}
 
-	return findMaxPressureInternal(startPosition, startTimeRemaining, startValveState, dests, shortestPaths)
+	return findMaxPressureInternal(startPosition, startTimeRemaining, dests, shortestPaths)
+}
+
+func findMaxPressureWithElephant() int {
+	startPosition := "AA"
+	startTimeRemaining := 26
+
+	shortestPaths := findAllShortestPaths(startPosition)
+
+	dests := set.NewSet[string]()
+	for dest := range shortestPaths[startPosition] {
+		dests.Add(dest)
+	}
+
+	maxPressure := 0
+
+	for lenSplit := 1; lenSplit < dests.Size()/2; lenSplit++ {
+		permutations := getPermutations(dests, lenSplit)
+
+		for _, permutation := range permutations {
+
+			humanDests := set.NewSet(permutation...)
+			elephantDests := dests.Copy()
+			elephantDests.Subtraction(humanDests)
+
+			humanPressure := findMaxPressureInternal(startPosition, startTimeRemaining, humanDests, shortestPaths)
+			elephantPressure := findMaxPressureInternal(startPosition, startTimeRemaining, elephantDests, shortestPaths)
+
+			pressure := humanPressure + elephantPressure
+
+			if pressure > maxPressure {
+				maxPressure = pressure
+			}
+		}
+	}
+
+	return maxPressure
 }
 
 func findAllShortestPaths(startPosition string) map[string]map[string]int {
@@ -113,16 +145,17 @@ type ValveState = map[string]int
 func findMaxPressureInternal(
 	startPosition string,
 	startTimeRemaining int,
-	startState ValveState,
 	destinations set.Set[string],
 	shortestPaths map[string]map[string]int,
 ) int {
 
-	if startTimeRemaining == 0 {
-		return 0
+	destArr := destinations.Slice()
+	startState := make(ValveState, destinations.Size())
+	for _, dest := range destArr {
+		startState[dest] = -1
 	}
 
-	queue := maxpq.New[Action](0, len(valves))
+	queue := maxpq.New[Action](0, 1000000)
 
 	queue.AddAtPriority(
 		Action{
@@ -144,24 +177,29 @@ func findMaxPressureInternal(
 		}
 
 		currState := *action.state
+
+		// abandon path if it is impossible to beat the current max pressure
+		potentialPressure := calcPressureCeiling(*action.state, action.timeRemaining)
+		if potentialPressure < maxPressure {
+			continue
+		}
+
 		if action.timeRemaining == 0 || allImportantValvesOpen(currState, destinations) {
 			continue
 		}
 
-		shouldTraverse := make([]string, len(shortestPaths[action.valve]))
-		for neighbor := range shortestPaths[action.valve] {
-			if neighbor != action.valve {
+		shouldTraverse := make([]string, 0)
+
+		for _, neighbor := range destArr {
+			if neighbor != action.valve && currState[neighbor] == -1 {
 				shouldTraverse = append(shouldTraverse, neighbor)
 			}
 		}
-		sort.Slice(shouldTraverse, func(i, j int) bool {
-			return shortestPaths[action.valve][shouldTraverse[i]] < shortestPaths[action.valve][shouldTraverse[j]]
-		})
 
 		for _, neighbor := range shouldTraverse {
 			distance := shortestPaths[action.valve][neighbor]
 
-			if currState[neighbor] == -1 && distance <= action.timeRemaining {
+			if distance <= action.timeRemaining {
 				reachedAt := action.timeRemaining - distance - 1
 				newState := openValve(currState, neighbor, reachedAt)
 				newPressure := calcPressure(newState)
@@ -172,12 +210,38 @@ func findMaxPressureInternal(
 					timeRemaining: reachedAt,
 					pressure:      newPressure,
 				}
-				queue.AddAtPriority(newAction, action.pressure)
+				queue.AddAtPriority(newAction, newPressure)
 			}
 		}
 	}
 
 	return maxPressure
+}
+
+func getPermutations[T comparable](s set.Set[T], len int) [][]T {
+	if len == 0 {
+		return [][]T{}
+	}
+
+	result := make([][]T, 0)
+
+	for _, item := range s.Slice() {
+		start := []T{item}
+
+		if len == 1 {
+			result = append(result, start)
+		} else {
+			copySet := s.Copy()
+			copySet.Remove(item)
+
+			for _, rest := range getPermutations(copySet, len-1) {
+				next := append(start, rest...)
+				result = append(result, next)
+			}
+		}
+	}
+
+	return result
 }
 
 func findShortestPaths(source string) map[string]int {
@@ -188,10 +252,10 @@ func findShortestPaths(source string) map[string]int {
 		if k == source {
 			shortestDistances[k] = 0
 		} else {
-			shortestDistances[k] = len(valves)
+			shortestDistances[k] = int(len(valves))
 		}
 
-		queue.AddAtPriority(k, shortestDistances[k])
+		queue.AddAtPriority(k, int(shortestDistances[k]))
 	}
 
 	for !queue.Empty() {
@@ -202,7 +266,7 @@ func findShortestPaths(source string) map[string]int {
 		for _, neighbor := range valves[next].tunnels {
 			if currentDistance < shortestDistances[neighbor] {
 				shortestDistances[neighbor] = currentDistance
-				queue.SetPriority(neighbor, currentDistance)
+				queue.SetPriority(neighbor, int(currentDistance))
 			}
 		}
 	}
@@ -214,10 +278,22 @@ func calcPressure(state ValveState) int {
 	pressure := 0
 	for valve, openedAt := range state {
 		if openedAt > 0 {
-			pressure += valves[valve].flowRate * openedAt
+			pressure += valves[valve].flowRate * int(openedAt)
 		}
 	}
 
+	return pressure
+}
+
+func calcPressureCeiling(state ValveState, timeRemaining int) int {
+	pressure := 0
+	for valve, openedAt := range state {
+		if openedAt == -1 {
+			pressure += valves[valve].flowRate * (int(timeRemaining) - 1)
+		} else {
+			pressure += valves[valve].flowRate * int(openedAt)
+		}
+	}
 	return pressure
 }
 
@@ -231,11 +307,16 @@ func allImportantValvesOpen(state ValveState, destinations set.Set[string]) bool
 	return true
 }
 
-func openValve(state ValveState, position string, time int) ValveState {
+func openValve(state ValveState, position string, timeRemaining int) ValveState {
+	// already opened
+	if state[position] != -1 {
+		return state
+	}
+
 	newState := make(ValveState, len(state))
 	for k, v := range state {
 		if k == position {
-			newState[k] = time
+			newState[k] = int(timeRemaining)
 		} else {
 			newState[k] = v
 		}

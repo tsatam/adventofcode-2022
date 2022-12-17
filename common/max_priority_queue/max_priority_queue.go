@@ -71,15 +71,24 @@ func (pq *MaxPriorityQueue[T]) AddAtPriority(value T, priority int) {
 	})
 }
 
-// func (pq *MaxPriorityQueue[T]) SetPriority(value T, priority int) {
-// 	var index int
-// 	for i, item := range *pq {
-// 		if item.value == value {
-// 			index = i
-// 			item.priority = priority
-// 			break
-// 		}
-// 	}
+func (pq *MaxPriorityQueue[T]) TrimBelowPriority(priority int) {
+	if (*pq)[0].priority > priority {
+		return
+	}
 
-// 	heap.Fix(pq, index)
-// }
+	for i, item := range *pq {
+		if item.priority > priority {
+			old := *pq
+			*pq = old[i-1:]
+		}
+	}
+}
+
+func (pq *MaxPriorityQueue[T]) TrimToSize(size int) {
+	if len(*pq) < size {
+		return
+	}
+	old := *pq
+	n := len(old) - size
+	*pq = old[n:]
+}
