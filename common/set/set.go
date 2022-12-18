@@ -62,6 +62,16 @@ func (s *Set[T]) GetOne() (T, error) {
 	return empty, fmt.Errorf("Set [%v] empty", s)
 }
 
+func (s *Set[T]) PopOne() (T, error) {
+	one, err := s.GetOne()
+	if err != nil {
+		var empty T
+		return empty, err
+	}
+	s.Remove(one)
+	return one, nil
+}
+
 func (s *Set[T]) Remove(item T) {
 	delete(s.m, item)
 }
